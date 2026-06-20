@@ -5,10 +5,12 @@ const router = express.Router();
 const authRoutes = require('./auth.routes');
 const produtosRoutes = require('./produtos.routes');
 const vendasRoutes = require('./vendas.routes');
+const lojasRoutes = require('./lojas.routes'); // <-- IMPORTÁMOS A NOVA ROTA
 
 // Define o prefixo das rotas
 router.use('/auth', authRoutes);
 router.use('/produtos', produtosRoutes);
 router.use('/vendas', vendasRoutes);
+router.use('/lojas', lojasRoutes); // <-- LIGÁMOS A ROTA PARA A INTERNET
 
 module.exports = router;
