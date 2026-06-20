@@ -1,0 +1,12 @@
+# Dependências
+node_modules/
+
+# Variáveis de ambiente
+.env
+
+# Chave Mestra do Firebase (ISSO SALVA A SUA VIDA)
+firebase-credentials.json
+
+# Arquivos de log e sistema
+npm-debug.log
+.DS_Store
