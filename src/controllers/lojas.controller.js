@@ -8,7 +8,7 @@ const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN 
 const criarLoja = async (req, res) => {
     try {
         const { nome_loja, tamanho_equipe, plano_escolhido, metodo_pagamento } = req.body;
-        const dono_uid = req.usuario.uid;
+        const dono_uid = req.usuario.uid; // Pegamos o UID do Firebase que veio do middleware
 
         // 1. Criar a Loja no banco de dados com status PENDENTE
         const lojaResult = await db.query(`
@@ -18,6 +18,16 @@ const criarLoja = async (req, res) => {
         `, [nome_loja, plano_escolhido]);
         
         const lojaId = lojaResult.rows[0].id;
+
+        // ==========================================
+        // A PEÇA QUE FALTAVA (O PASSO 1.5):
+        // Guardar o utilizador no banco de dados e dizer que ele é o DONO desta loja!
+        // ==========================================
+        await db.query(`
+            INSERT INTO usuarios (firebase_uid, loja_id, role) 
+            VALUES ($1, $2, 'DONO');
+        `, [dono_uid, lojaId]);
+
 
         // 2. Define o preço com base no plano escolhido
         const valorPlano = plano_escolhido === 'ANUAL' ? 479.00 : 49.90;
@@ -40,7 +50,7 @@ const criarLoja = async (req, res) => {
                 
                 // Para onde o cliente volta depois de pagar
                 back_urls: {
-                    success: "https://seusite.vercel.app/dashboard", // Depois você troca pelo link real da sua Vercel
+                    success: "https://seusite.vercel.app/dashboard", // Lembre-se de trocar depois pelo seu link real da Vercel
                     failure: "https://seusite.vercel.app/cadastro",
                     pending: "https://seusite.vercel.app/dashboard"
                 },
@@ -48,7 +58,7 @@ const criarLoja = async (req, res) => {
             }
         });
 
-        console.log(`✅ [Loja] Nova loja: ${nome_loja}. Link gerado!`);
+        console.log(`✅ [Loja] Nova loja: ${nome_loja}. Link gerado e utilizador salvo!`);
 
         // 4. Devolve o link do Checkout Pro para o Frontend
         return res.status(201).json({ 
